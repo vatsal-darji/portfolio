@@ -1,6 +1,6 @@
 ---
 title: "The Dual Write Problem and the Transactional Outbox Pattern: A Guide to Data Consistency"
-date: 2026-04-26
+date: 2025-11-23
 excerpt: "A practical walkthrough of the dual write problem, the transactional outbox pattern, CDC, and the edge cases that make distributed systems hard."
 tags:
   - distributed-systems

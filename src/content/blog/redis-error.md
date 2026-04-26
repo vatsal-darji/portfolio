@@ -1,6 +1,6 @@
 ---
 title: "The dreaded Redis MOVED error and why read replicas will break your AWS job queues."
-date: 2026-04-26
+date: 2026-03-17
 excerpt: "Why Redis Cluster returns MOVED errors, how to fix ElastiCache clients with IORedis.Cluster, and why BullMQ should avoid replica reads."
 tags:
   - redis

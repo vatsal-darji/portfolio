@@ -1,6 +1,6 @@
 ---
 title: "OpenMP and the Fork-Join Model: Learning Shared-Memory Parallelism"
-date: 2026-04-26
+date: 2026-04-12
 excerpt: "Notes from learning OpenMP, multi-core execution, the fork-join model, and why race conditions matter in shared-memory programming."
 tags:
   - openmp
