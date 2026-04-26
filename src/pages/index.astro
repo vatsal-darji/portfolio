@@ -1,0 +1,140 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { siteConfig } from "../data/site";
+import { techGroups } from "../data/tech";
+import { estimateReadingTime, formatDate, sortByDateDesc } from "../lib/content";
+
+const featuredProjects = (await getCollection("projects"))
+  .filter((project) => project.data.featured)
+  .slice(0, 3);
+const latestPosts = sortByDateDesc(await getCollection("blog")).slice(0, 3);
+
+const heroTitle = "Engineer. Human.";
+const heroDescription = "And I love movies too!";
+---
+
+<BaseLayout title={heroTitle} description={heroDescription} wide={true}>
+  <section class="hero hero--landing">
+    <!-- <p class="eyebrow">{siteConfig.role}</p> -->
+    <h1>{heroTitle}</h1>
+    <p class="lede">
+      {heroDescription}
+    </p>
+    <div class="inline-links">
+      <a href="#about">About</a>
+      <a href="/projects">Projects</a>
+      <a href="/blog">Blogs</a>
+      <a href={`mailto:${siteConfig.email}`}>Get in touch</a>
+    </div>
+    <a class="scroll-cue" href="#about" aria-label="Scroll to about section">
+      <span aria-hidden="true">↓</span>
+    </a>
+  </section>
+
+  <script is:inline>
+    const setupScrollCue = () => {
+      const cue = document.querySelector(".scroll-cue");
+      if (!(cue instanceof HTMLElement)) return;
+
+      const hideCue = () => {
+        cue.classList.add("scroll-cue--hidden");
+      };
+
+      if (!cue.dataset.bound) {
+        cue.dataset.bound = "true";
+        cue.addEventListener("click", hideCue);
+        window.addEventListener(
+          "scroll",
+          () => {
+            if (window.scrollY > 24) hideCue();
+          },
+          { passive: true }
+        );
+      }
+
+      if (window.scrollY > 24) hideCue();
+      else cue.classList.remove("scroll-cue--hidden");
+    };
+
+    setupScrollCue();
+    document.addEventListener("astro:after-swap", setupScrollCue);
+  </script>
+
+  <section class="section about-section" id="about">
+    <div class="section-heading">
+      <h2>About</h2>
+    </div>
+    <!-- <div class="card about-section__summary">
+      <p>
+        <strong>Backend Engineer</strong> working across distributed services, API design, data movement,
+        observability, and developer tooling.
+      </p>
+    </div> -->
+    <div class="prose about-intro">
+      <p>
+        There’s a certain rhythm to writing good code much like writing a good poem, it's about finding the most elegant and structured way to express a complex idea. For me, that expression happens deep in the backend.
+      </p>
+      <p>
+        I enjoy working with systems that reward precision: <span class="text-accent">message-driven
+        architectures</span>, database-heavy services, distributed coordination, and developer tooling
+        that makes complex environments easier to reason about. Outside of work, I tend to read systems
+        papers, write short technical notes, and iterate on small tools.
+      </p>
+    </div>
+    <div class="group-stack">
+      {
+        techGroups.map((group) => (
+          <div class="group-row">
+            <h3>{group.label}</h3>
+            <div class="chip-list">
+              {group.items.map((item) => <span class="chip">{item}</span>)}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-heading">
+      <h2>Latest Projects</h2>
+      <a href="/projects">All projects</a>
+    </div>
+    <div class="stack">
+      {
+        featuredProjects.map((project) => (
+          <article class="entry-card">
+            <div class="entry-card__meta">
+              <span class="chip-list">
+                {project.data.tech.slice(0, 3).map((item) => <span class="chip">{item}</span>)}
+              </span>
+            </div>
+            <h3><a href={`/projects/${project.slug}`}>{project.data.title}</a></h3>
+            <p>{project.data.description}</p>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-heading">
+      <h2>Latest Writing</h2>
+      <a href="/blog">All posts</a>
+    </div>
+    <div class="stack">
+      {
+        latestPosts.map((post) => (
+          <article class="entry-card">
+            <p class="meta">
+              {formatDate(post.data.date)} · {estimateReadingTime(post.body)}
+            </p>
+            <h3><a href={`/blog/${post.slug}`}>{post.data.title}</a></h3>
+            <p>{post.data.excerpt}</p>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>

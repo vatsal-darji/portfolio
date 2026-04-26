@@ -1,0 +1,25 @@
+{
+  "name": "portfolio",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
+  "keywords": [
+    "astro",
+    "portfolio",
+    "blog"
+  ],
+  "author": "Vatsal Darji",
+  "license": "ISC",
+  "description": "Minimal academic portfolio for a backend and distributed systems engineer.",
+  "dependencies": {
+    "astro": "^5.7.1",
+    "rehype-autolink-headings": "^7.1.0",
+    "rehype-slug": "^6.0.0",
+    "remark-gfm": "^4.0.1"
+  }
+}

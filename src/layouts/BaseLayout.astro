@@ -1,0 +1,67 @@
+---
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import { siteConfig } from "../data/site";
+import "../styles/global.css";
+
+type Props = {
+  title?: string;
+  description?: string;
+  wide?: boolean;
+  type?: "website" | "article";
+};
+
+const {
+  title = siteConfig.title,
+  description = siteConfig.description,
+  wide = false,
+  type = "website",
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://example.com");
+---
+
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={canonical.toString()} />
+    <link rel="canonical" href={canonical.toString()} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.png
+    " />
+    <script is:inline>
+      const storedTheme = localStorage.getItem("theme");
+      const preferredTheme =
+        storedTheme ||
+        (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.dataset.theme = preferredTheme;
+    </script>
+  </head>
+  <body>
+    <div class="sky-effects" aria-hidden="true">
+      <div class="sky-effects__sun" />
+      <div class="sky-effects__moon" />
+      <span class="sky-effects__star sky-effects__star--1" />
+      <span class="sky-effects__star sky-effects__star--2" />
+      <span class="sky-effects__star sky-effects__star--3" />
+      <span class="sky-effects__star sky-effects__star--4" />
+      <span class="sky-effects__star sky-effects__star--5" />
+      <span class="sky-effects__star sky-effects__star--6" />
+      <span class="sky-effects__star sky-effects__star--7" />
+      <span class="sky-effects__star sky-effects__star--8" />
+    </div>
+    <div class={`shell ${wide ? "shell--wide" : ""}`}>
+      <Nav />
+      <main>
+        <slot />
+      </main>
+      <Footer />
+    </div>
+  </body>
+</html>

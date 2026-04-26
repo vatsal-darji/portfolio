@@ -1,0 +1,75 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { estimateReadingTime, formatDate, sortByDateDesc } from "../../lib/content";
+
+const posts = sortByDateDesc(await getCollection("blog"));
+const tags = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
+---
+
+<BaseLayout
+  title="Blog | Vatsal Darji"
+  description="Notes on backend engineering, distributed systems, data systems, and observability."
+  wide={true}
+>
+  <section class="page-header">
+    <p class="eyebrow">Blog</p>
+    <h1>Notes on backend systems, debugging, and architecture.</h1>
+    <p class="lede">
+      Short technical essays, field notes, and implementation write-ups.
+    </p>
+  </section>
+
+  <section class="section">
+    <div class="chip-list filter-list" data-filter-root>
+      <button class="chip chip--interactive is-active" type="button" data-tag="all">All</button>
+      {tags.map((tag) => <button class="chip chip--interactive" type="button" data-tag={tag}>{tag}</button>)}
+    </div>
+  </section>
+
+  <section class="stack" data-post-list>
+    {
+      posts.map((post) => (
+        <article class="entry-card" data-tags={post.data.tags.join("|")}>
+          <p class="meta">
+            {formatDate(post.data.date)} · {estimateReadingTime(post.body)}
+          </p>
+          <h2><a href={`/blog/${post.slug}`}>{post.data.title}</a></h2>
+          <p>{post.data.excerpt}</p>
+          <div class="chip-list">
+            {post.data.tags.map((tag) => <span class="chip">{tag}</span>)}
+          </div>
+        </article>
+      ))
+    }
+  </section>
+
+  <script is:inline>
+    const setupTagFilters = () => {
+      const root = document.querySelector("[data-filter-root]");
+      if (!root) return;
+      const buttons = Array.from(root.querySelectorAll("[data-tag]"));
+      const posts = Array.from(document.querySelectorAll("[data-post-list] [data-tags]"));
+
+      buttons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const tag = button.dataset.tag;
+          buttons.forEach((item) => item.classList.toggle("is-active", item === button));
+          posts.forEach((post) => {
+            const tags = post.dataset.tags?.split("|") ?? [];
+            const visible = tag === "all" || tags.includes(tag);
+            post.toggleAttribute("hidden", !visible);
+          });
+        });
+      });
+    };
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", setupTagFilters, { once: true });
+    } else {
+      setupTagFilters();
+    }
+
+    document.addEventListener("astro:after-swap", setupTagFilters);
+  </script>
+</BaseLayout>

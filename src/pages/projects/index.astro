@@ -1,0 +1,43 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const projects = await getCollection("projects");
+---
+
+<BaseLayout
+  title="Projects | Vatsal Darji"
+  description="Selected systems, tooling, and backend engineering projects."
+  wide={true}
+>
+  <section class="page-header">
+    <p class="eyebrow">Projects</p>
+    <h1>Selected work with long-form write-ups.</h1>
+    <p class="lede">
+      A mix of backend systems, internal tools, and architecture-focused experiments.
+    </p>
+  </section>
+
+  <section class="card-grid">
+    {
+      projects.map((project) => (
+        <article class="entry-card">
+          <div class="chip-list">
+            {project.data.tech.map((item) => <span class="chip">{item}</span>)}
+          </div>
+          <h2><a href={`/projects/${project.slug}`}>{project.data.title}</a></h2>
+          <p>{project.data.description}</p>
+          <div class="inline-links">
+            {project.data.github && (
+              <a href={project.data.github} target="_blank" rel="noreferrer">GitHub</a>
+            )}
+            {project.data.demo && (
+              <a href={project.data.demo} target="_blank" rel="noreferrer">Demo</a>
+            )}
+            <a href={`/projects/${project.slug}`}>Read write-up</a>
+          </div>
+        </article>
+      ))
+    }
+  </section>
+</BaseLayout>

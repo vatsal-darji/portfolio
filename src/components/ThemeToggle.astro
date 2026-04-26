@@ -1,0 +1,36 @@
+<button class="theme-toggle" type="button" aria-label="Toggle theme" data-theme-toggle>
+  <span data-theme-label>Dark</span>
+</button>
+
+<script is:inline>
+  const getStoredTheme = () => localStorage.getItem("theme");
+  const getPreferredTheme = () =>
+    getStoredTheme() || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+
+  const applyTheme = (theme) => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem("theme", theme);
+    document.querySelectorAll("[data-theme-label]").forEach((node) => {
+      node.textContent = theme === "dark" ? "Light" : "Dark";
+    });
+  };
+
+  const setupThemeToggle = () => {
+    applyTheme(getPreferredTheme());
+    document.querySelectorAll("[data-theme-toggle]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const nextTheme =
+          document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+        applyTheme(nextTheme);
+      });
+    });
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupThemeToggle, { once: true });
+  } else {
+    setupThemeToggle();
+  }
+
+  document.addEventListener("astro:after-swap", setupThemeToggle);
+</script>

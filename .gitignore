@@ -1,0 +1,26 @@
+node_modules
+.env
+.astro
+dist
+# Astro / Node
+node_modules/
+.astro/
+dist/
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# OS junk
+.DS_Store
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Optional editor/local files
+.vscode/
+.idea/

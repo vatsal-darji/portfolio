@@ -1,0 +1,49 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { estimateReadingTime, formatDate } from "../../lib/content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await post.render();
+---
+
+<BaseLayout
+  title={`${post.data.title} | Blog | Vatsal Darji`}
+  description={post.data.excerpt}
+  type="article"
+>
+  <article class="article">
+    <header class="article-header">
+      <p class="eyebrow">Blog</p>
+      <h1>{post.data.title}</h1>
+      <p class="meta">
+        {formatDate(post.data.date)} · {estimateReadingTime(post.body)}
+      </p>
+      <p class="lede">{post.data.excerpt}</p>
+      <div class="chip-list">
+        {post.data.tags.map((tag) => <span class="chip">{tag}</span>)}
+      </div>
+    </header>
+
+    {headings.length > 0 && (
+      <aside class="toc">
+        <p class="toc__title">On this page</p>
+        <ul>
+          {headings.map((heading) => <li><a href={`#${heading.slug}`}>{heading.text}</a></li>)}
+        </ul>
+      </aside>
+    )}
+
+    <div class="prose article-prose">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>

@@ -1,0 +1,114 @@
+---
+import { siteConfig } from "../data/site";
+import NavMenuButton from "./NavMenuButton.astro";
+import ThemeToggle from "./ThemeToggle.astro";
+
+const pathname = Astro.url.pathname;
+const links = [
+  { href: "/projects", label: "Projects" },
+  { href: "/experience", label: "Experience" },
+  { href: "/blog", label: "Blog" },
+];
+---
+
+<nav class="site-nav" data-site-nav>
+  <a class="site-nav__brand" href="/">{siteConfig.name}</a>
+  <NavMenuButton />
+  <div class="site-nav__menu" id="site-nav-menu" data-nav-menu>
+    <div class="site-nav__links" aria-label="Primary">
+      {
+        links.map((link) => (
+          <a href={link.href} aria-current={pathname.startsWith(link.href) ? "page" : undefined}>
+            {link.label}
+          </a>
+        ))
+      }
+    </div>
+    <div class="site-nav__toggle">
+      <ThemeToggle />
+    </div>
+  </div>
+</nav>
+
+<script is:inline>
+  const setupSiteNav = () => {
+    const nav = document.querySelector("[data-site-nav]");
+    if (!nav) return;
+    const menu = nav.querySelector("[data-nav-menu]");
+    const menuButton = nav.querySelector("[data-nav-menu-button]");
+    const mobileQuery = window.matchMedia("(max-width: 720px)");
+
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+    let isMenuOpen = false;
+
+    const syncMenu = () => {
+      if (!menu || !menuButton) return;
+
+      const isMobile = mobileQuery.matches;
+      menu.hidden = isMobile ? !isMenuOpen : false;
+      menuButton.setAttribute("aria-expanded", String(isMobile && isMenuOpen));
+      nav.classList.toggle("site-nav--menu-open", isMobile && isMenuOpen);
+    };
+
+    const updateNav = () => {
+      const currentScrollY = window.scrollY;
+      const scrollingDown = currentScrollY > lastScrollY;
+      const passedThreshold = currentScrollY > 96;
+      const shouldHide = scrollingDown && passedThreshold && !isMenuOpen;
+
+      nav.classList.toggle("site-nav--hidden", shouldHide);
+      lastScrollY = currentScrollY;
+      ticking = false;
+    };
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(updateNav);
+    };
+
+    if (menuButton && !menuButton.dataset.bound) {
+      menuButton.dataset.bound = "true";
+      menuButton.addEventListener("click", () => {
+        isMenuOpen = !isMenuOpen;
+        syncMenu();
+        updateNav();
+      });
+    }
+
+    if (menu && !menu.dataset.bound) {
+      menu.dataset.bound = "true";
+      menu.addEventListener("click", (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+        if (!mobileQuery.matches) return;
+        if (target.closest("a")) {
+          isMenuOpen = false;
+          syncMenu();
+          updateNav();
+        }
+      });
+    }
+
+    if (!nav.dataset.scrollBound) {
+      nav.dataset.scrollBound = "true";
+      window.addEventListener("scroll", onScroll, { passive: true });
+      mobileQuery.addEventListener("change", () => {
+        isMenuOpen = false;
+        syncMenu();
+        updateNav();
+      });
+    }
+
+    isMenuOpen = false;
+    syncMenu();
+    updateNav();
+  };
+
+  if (!window.__siteNavInitialized) {
+    window.__siteNavInitialized = true;
+    setupSiteNav();
+    document.addEventListener("astro:after-swap", setupSiteNav);
+  }
+</script>
