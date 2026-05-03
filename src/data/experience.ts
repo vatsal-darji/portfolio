@@ -20,7 +20,7 @@ export const experience: ExperienceItem[] = [
     company: "Webmob Technologies",
     title: "Software Engineer",
     location: "Ahmedabad",
-    start: "DEC 2023",
+    start: "2023",
     end: "Present",
     bullets: [
       "Built scalable fintech backend systems with Node.js, TypeScript, PostgreSQL, RabbitMQ, and Redis for real-time lending and transactional workflows.",
