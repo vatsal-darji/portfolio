@@ -31,6 +31,9 @@ const projects = await getCollection("projects");
             {project.data.github && (
               <a href={project.data.github} target="_blank" rel="noreferrer">GitHub</a>
             )}
+            {project.data.npm && (
+              <a href={project.data.npm} target="_blank" rel="noreferrer">npm</a>
+            )}
             {project.data.demo && (
               <a href={project.data.demo} target="_blank" rel="noreferrer">Demo</a>
             )}

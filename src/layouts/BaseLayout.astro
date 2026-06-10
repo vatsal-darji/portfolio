@@ -55,6 +55,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://example.com
       <span class="sky-effects__star sky-effects__star--6" />
       <span class="sky-effects__star sky-effects__star--7" />
       <span class="sky-effects__star sky-effects__star--8" />
+      <div class="page-wire" id="page-wire"></div>
     </div>
     <div class={`shell ${wide ? "shell--wide" : ""}`}>
       <Nav />
@@ -63,5 +64,74 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://example.com
       </main>
       <Footer />
     </div>
+    <script>
+      (function () {
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+        const wire = document.getElementById("page-wire") as HTMLElement;
+        const shell = document.querySelector(".shell") as HTMLElement | null;
+        if (!shell) return;
+
+        const headings = Array.from(
+          shell.querySelectorAll("h1, h2")
+        ) as HTMLElement[];
+        if (headings.length === 0) return;
+
+        // left is a viewport coordinate — wire lives inside .sky-effects (position:fixed)
+        const shellRect = shell.getBoundingClientRect();
+        const wireX = shellRect.left - 14;
+        if (wireX < 8) return; // not enough margin on mobile
+        wire.style.left = wireX + "px";
+
+        // Page-absolute Y of the first heading (fixed at init)
+        const wireTopPageY = headings[0].getBoundingClientRect().top + window.scrollY;
+
+        function update() {
+          const isDark = document.documentElement.dataset.theme === "dark";
+          if (!isDark) { wire.classList.remove("is-active"); return; }
+
+          const scrollY    = window.scrollY;
+          const vh         = window.innerHeight;
+          const maxScroll  = Math.max(1, document.documentElement.scrollHeight - vh);
+          const p          = scrollY / maxScroll;
+
+          // Tip: normally at 40 % viewport. After 75 % of page, accelerate downward
+          // and out of the bottom. Since the wire is inside .sky-effects (overflow:clip)
+          // any value beyond vh is clipped — no blank-space glitch.
+          const exitFactor    = p > 0.75 ? (p - 0.75) / 0.25 : 0;
+          const tipViewportY  = vh * (0.4 + exitFactor * 1.6);
+
+          // Trail length is fixed; tail follows tip so the whole wire slides out together
+          const trailLength     = vh * 0.72;
+          // Convert first-heading page-Y → current viewport-Y, floor at 0
+          const headingViewportY = Math.max(0, wireTopPageY - scrollY);
+          const topViewportY    = Math.max(headingViewportY, tipViewportY - trailLength);
+          const height          = Math.max(0, tipViewportY - topViewportY);
+
+          wire.style.top    = topViewportY + "px";
+          wire.style.height = height + "px";
+          wire.classList.add("is-active");
+        }
+
+        // Light up each heading as the wire tip passes through it
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              (entry.target as HTMLElement).classList.toggle(
+                "heading-lit",
+                entry.isIntersecting
+              );
+            });
+          },
+          // Band at 36–44 % from viewport top = where the wire tip is
+          { rootMargin: "-36% 0px -54% 0px" }
+        );
+
+        headings.forEach((h) => observer.observe(h));
+
+        window.addEventListener("scroll", update, { passive: true });
+        update();
+      })();
+    </script>
   </body>
 </html>

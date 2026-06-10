@@ -720,6 +720,60 @@ h3 {
   flex-wrap: wrap;
 }
 
+.page-wire {
+  position: absolute;
+  width: 2px;
+  height: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  border-radius: 1px;
+  /* Trail fades at top, glows bright at tip (bottom) */
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(140, 180, 255, 0.12) 8%,
+    rgba(160, 200, 255, 0.4) 75%,
+    rgba(200, 225, 255, 0.78) 92%,
+    rgba(230, 242, 255, 0.95) 100%
+  );
+  box-shadow: 0 0 4px 1px rgba(140, 180, 255, 0.22);
+  transition: opacity 0.5s ease;
+}
+
+/* Glowing orb at the tip */
+.page-wire::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(225, 238, 255, 0.95);
+  box-shadow:
+    0 0 8px 3px rgba(160, 200, 255, 0.7),
+    0 0 22px 8px rgba(130, 175, 255, 0.28);
+}
+
+:root[data-theme="dark"] .page-wire.is-active {
+  opacity: 1;
+}
+
+/* Heading glow when the wire passes through */
+:root[data-theme="dark"] .heading-lit {
+  color: var(--accent);
+  text-shadow:
+    0 0 28px rgba(140, 175, 255, 0.55),
+    0 0 55px rgba(120, 160, 255, 0.2);
+  transition: color 0.5s ease, text-shadow 0.5s ease;
+}
+
+h1, h2 {
+  transition: color 0.5s ease, text-shadow 0.5s ease;
+}
+
 @keyframes twinkle {
   0%,
   100% {
